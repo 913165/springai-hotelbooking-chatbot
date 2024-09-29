@@ -42,7 +42,7 @@ public class HotelBookingService {
 
             RoomType roomType = RoomType.values()[i % RoomType.values().length];
 
-            HotelBooking booking = new HotelBooking("10" + (i + 1), LocalDate.now().plusDays(2*i), LocalDate.now().plusDays(2*i + 2), customer, hotelName, roomType, 2, HotelBookingStatus.CONFIRMED);
+            HotelBooking booking = new HotelBooking("10" + (i + 1), LocalDate.now().plusDays(2 * i), LocalDate.now().plusDays(2 * i + 2), customer, hotelName, roomType, 2, HotelBookingStatus.CONFIRMED);
             customer.getBookings().add(booking);
 
             customers.add(customer);
@@ -56,8 +56,28 @@ public class HotelBookingService {
         return hotelBookingData.getHotelBookings().stream().map(this::toHotelBookingDetails).toList();
     }
 
+    private HotelBooking findBooking(String bookingNumber, String firstName, String lastName) {
+        return hotelBookingData.getHotelBookings().stream()
+                .filter(b -> b.getBookingNumber().equalsIgnoreCase(bookingNumber))
+                .filter(b -> b.getCustomer().getFirstName().equalsIgnoreCase(firstName))
+                .filter(b -> b.getCustomer().getLastName().equalsIgnoreCase(lastName))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+    }
 
-   public  HotelBookingDetails toHotelBookingDetails(HotelBooking hotelBooking) {
+    public void cancelBooking(String bookingNumber, String firstName, String lastName) {
+        var booking = findBooking(bookingNumber, firstName, lastName);
+        booking.setBookingStatus(HotelBookingStatus.CANCELLED.CANCELLED);
+    }
+
+    public void roomTypeChangeRequest(String bookingNumber, String firstName, String lastName, String roomType) {
+        RoomType updatedRoomType = RoomType.valueOf(roomType);
+        var booking = findBooking(bookingNumber, firstName, lastName);
+        booking.setRoomType(updatedRoomType);
+
+    }
+
+    public HotelBookingDetails toHotelBookingDetails(HotelBooking hotelBooking) {
         return new HotelBookingDetails(
                 hotelBooking.getBookingNumber(),
                 hotelBooking.getCustomer().getFirstName(),
