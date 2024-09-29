@@ -6,18 +6,30 @@ import {GridColumn} from "@vaadin/react-components/GridColumn";
 import {Grid} from "@vaadin/react-components/Grid";
 import {SplitLayout} from "@vaadin/react-components/SplitLayout";
 import HotelBookingDetails from "../generated/com/example/application/services/HotelBookingDetails";
-
+import Message, {MessageItem} from "../components/Message";
+import MessageList from "Frontend/components/MessageList";
+import {MessageInput} from "@vaadin/react-components";
 
 export default function Index() {
     const [working, setWorking] = useState(false);
     const [bookings, setBookings] = useState<HotelBookingDetails[]>([]);
-
+    const [messages, setMessages] = useState<MessageItem[]>([{
+        role: 'assistant',
+        content: 'Welcome to Great Hotel ! How can I help you?'
+    }]);
     useEffect(() => {
         // Update bookings when we have received the full response
         if (!working) {
             BookingService.getBookings().then(setBookings);
         }
     }, [working]);
+
+    async function sendMessage(message: string) {
+        setWorking(true);
+
+        let first = true;
+
+    }
 
     return (
         <SplitLayout className="h-full">
@@ -37,6 +49,11 @@ export default function Index() {
                         {({item}) => item.bookingStatus === "CONFIRMED" ? "✅" : "❌"}
                     </GridColumn>
                 </Grid>
+            </div>
+            <div className="flex flex-col gap-m p-m box-border h-full" style={{width: '30%'}}>
+                <h3>Funnair support</h3>
+                <MessageList messages={messages} className="flex-grow overflow-scroll"/>
+                <MessageInput onSubmit={e => sendMessage(e.detail.value)} className="px-0" disabled={working}/>
             </div>
         </SplitLayout>
     );
