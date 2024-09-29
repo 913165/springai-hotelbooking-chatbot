@@ -4,8 +4,6 @@ import com.example.application.model.HotelBookingStatus;
 import com.example.application.model.RoomType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
-import com.vaadin.hilla.BrowserCallable;
 
 import java.time.LocalDate;
 

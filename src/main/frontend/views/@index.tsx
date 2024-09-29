@@ -1,36 +1,43 @@
-import { ViewConfig } from '@vaadin/hilla-file-router/types.js';
-import { useSignal } from '@vaadin/hilla-react-signals';
-import { Button } from '@vaadin/react-components/Button.js';
-import { Notification } from '@vaadin/react-components/Notification.js';
-import { TextField } from '@vaadin/react-components/TextField.js';
-import { HelloWorldService } from 'Frontend/generated/endpoints.js';
 
-export const config: ViewConfig = {
-  menu: { order: 0, icon: 'line-awesome/svg/globe-solid.svg' },
-  title: 'Hello World',
-};
+import {useEffect, useState} from "react";
 
-export default function HelloWorldView() {
-  const name = useSignal('');
+import {BookingService} from 'Frontend/generated/endpoints.js';
+import {GridColumn} from "@vaadin/react-components/GridColumn";
+import {Grid} from "@vaadin/react-components/Grid";
+import {SplitLayout} from "@vaadin/react-components/SplitLayout";
+import HotelBookingDetails from "../generated/com/example/application/services/HotelBookingDetails";
 
-  return (
-    <>
-      <section className="flex p-m gap-m items-end">
-        <TextField
-          label="Your name"
-          onValueChanged={(e) => {
-            name.value = e.detail.value;
-          }}
-        />
-        <Button
-          onClick={async () => {
-            const serverResponse = await HelloWorldService.sayHello(name.value);
-            Notification.show(serverResponse);
-          }}
-        >
-          Say hello
-        </Button>
-      </section>
-    </>
-  );
+
+export default function Index() {
+    const [working, setWorking] = useState(false);
+    const [bookings, setBookings] = useState<HotelBookingDetails[]>([]);
+
+    useEffect(() => {
+        // Update bookings when we have received the full response
+        if (!working) {
+            BookingService.getBookings().then(setBookings);
+        }
+    }, [working]);
+
+    return (
+        <SplitLayout className="h-full">
+
+            <div className="flex flex-col gap-m p-m box-border" style={{width: '70%'}}>
+                <h3>Hotel Bookings Database</h3>
+                <Grid items={bookings} className="flex-shrink-0">
+                    <GridColumn path="bookingNumber" autoWidth header="#"/>
+                    <GridColumn path="firstName" autoWidth header="First Name"/>
+                    <GridColumn path="lastName" autoWidth header="Last Name"/>
+                    <GridColumn path="checkInDate" autoWidth header="Check-In"/>
+                    <GridColumn path="checkOutDate" autoWidth header="Check-Out"/>
+                    <GridColumn path="hotelName" autoWidth header="Hotel"/>
+                    <GridColumn path="roomType" autoWidth header="Room Type"/>
+                    <GridColumn path="numberOfGuests" autoWidth header="Guests"/>
+                    <GridColumn path="bookingStatus" autoWidth header="Status">
+                        {({item}) => item.bookingStatus === "CONFIRMED" ? "✅" : "❌"}
+                    </GridColumn>
+                </Grid>
+            </div>
+        </SplitLayout>
+    );
 }
